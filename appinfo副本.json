@@ -1,10 +1,10 @@
 {
-  "uuid": "743e9921-996c-40d3-b9f9-0ba5ec201c34",
-  "shortName": "ChinaStock",
-  "longName": "China Stock",
-  "companyName": "Robin Kam",
+  "uuid": "133215f0-cf20-4c05-997b-3c9be5a64e5b",
+  "shortName": "Pebble.js",
+  "longName": "Pebble.js",
+  "companyName": "Meiguro",
   "versionCode": 1,
-  "versionLabel": "0.1",
+  "versionLabel": "0.4",
   "capabilities": [
     "configurable"
   ],
