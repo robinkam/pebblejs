@@ -5,6 +5,7 @@
 var ajax = require('ajax');
 var util2 = require('util2');
 var StockModel = require('robinkam/chinastock/stock-model');
+var IndexModel = require('robinkam/chinastock/index-model');
 
 var DataLoader = {};
 
@@ -21,11 +22,16 @@ DataLoader.loadStockData = function(stockCodeArray, successCallback, errorCallba
 			var lines = data.match(re);
 			var stockData;
 			if(lines.length>0){
-				stockData = new StockModel(lines[0]);
+				if(stockCode.match(/s_[a-z]{2}[0-9]{6}/gi)){
+					stockData = new IndexModel(lines[0]);
+					stockData.indexCode = stockCode;
+				}else{
+					stockData = new StockModel(lines[0]);
+					stockData.stockCode = stockCode;
+				}
 			}else{
 				stockData = new StockModel();
 			}
-			stockData.stockCode = stockCode;
 			console.log('Stock data is: ' + util2.toString(stockData));
 			stockArray.push(stockData);
 		}

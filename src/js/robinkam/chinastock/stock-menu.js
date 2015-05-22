@@ -1,7 +1,8 @@
 var UI = require('ui');
 var util2 = require('util2');
 var StockDetail = require('robinkam/chinastock/stock-detail');
-var DataLoader = require('robinkam/chinastock/data-loader')
+var StockModel = require('robinkam/chinastock/stock-model');
+var DataLoader = require('robinkam/chinastock/data-loader');
 
 var StockMenu = function(stockIDs){
   this.stockIDs = stockIDs;
@@ -50,14 +51,30 @@ StockMenu.prototype.loadData = function(stockIDs){
         return;
       }
       var menuItems = [];
+      var menuItemsForIndex = [];
       for(var i=0; i<stockArray.length; i++){
         var stockData = stockArray[i];
-        var stockPrice = stockData.lowestPriceToday+'<= '+stockData.currentPrice+' <='+stockData.highestPriceToday;
-        var menuItem = {title: stockData.stockName, subtitle: stockPrice, stockData:stockData};
-        console.log('Menu item is: ' + util2.toString(menuItem));
-        menuItems.push(menuItem);
+        if(stockData.stockCode){
+          var menuItem = {title: "无数据", subtitle: "请检查股票代码", stockData:null};
+          if(stockData.stockName){
+            var stockPrice = stockData.lowestPriceToday+'<= '+stockData.currentPrice+' <='+stockData.highestPriceToday;
+            menuItem = {title: stockData.stockName, subtitle: stockPrice, stockData:stockData};
+          }
+          console.log('Menu item is: ' + util2.toString(menuItem));
+          menuItems.push(menuItem);
+        }else if(stockData.indexCode){
+          var menuItem = {title: "无数据", subtitle: "请检查股票代码", stockData:null};
+          if(stockData.indexName){
+            var symbol = stockData.deltaToday>=0?"+":"";
+            var indexValue = symbol+stockData.currentValue+' '+symbol+stockData.percentDeltaToday+'%';
+            menuItem = {title: stockData.indexName, subtitle: indexValue, stockData:stockData};
+          }
+          console.log('Menu item is: ' + util2.toString(menuItem));
+          menuItemsForIndex.push(menuItem);
+        }
       }
       theMenu.items(0, menuItems);
+      theMenu.items(1, menuItemsForIndex);
     },
     function(error){
 

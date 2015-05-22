@@ -9,9 +9,7 @@ var StockModel = function(line){
 		return null;
 	}
 	var dataString = line.substring(firstQuoteIndex+1, lastQuoteIndex);
-	//	console.log('Stock line is: ' + dataString);
 	var dataParts = dataString.split(",");
-	//	console.log('Stock data array is: ' + dataParts);
 	if(dataParts.length>31){
 		var model = {
 			stockCode: "",
@@ -25,6 +23,20 @@ var StockModel = function(line){
 			sellPrice: dataParts[7],
 			tradedAmountOfStock: dataParts[8],
 			tradedAmountOfMoney: dataParts[9],
+			buyers:[
+				{stock:dataParts[10], price:dataParts[11]},
+				{stock:dataParts[12], price:dataParts[13]},
+				{stock:dataParts[14], price:dataParts[15]},
+				{stock:dataParts[16], price:dataParts[17]},
+				{stock:dataParts[18], price:dataParts[19]},
+			],
+			sellers:[
+				{stock:dataParts[20], price:dataParts[21]},
+				{stock:dataParts[22], price:dataParts[23]},
+				{stock:dataParts[24], price:dataParts[25]},
+				{stock:dataParts[26], price:dataParts[27]},
+				{stock:dataParts[28], price:dataParts[29]},
+			],
 			date: dataParts[30],
 			time: dataParts[31]
 		};
