@@ -1,15 +1,23 @@
+var WindowStack = require('ui/windowstack');
 var Settings = require('settings');
+var util2 = require('util2');
 var StockMenu = require('robinkam/chinastock/stock-menu');
 
 var App = function(arg){
 	//Settings.reset();
+	if(Settings.option('shouldAutoRefresh')===undefined)
+		Settings.option('shouldAutoRefresh', false);
+	if(Settings.option('autoRefreshInterval')===undefined)
+		Settings.option('autoRefreshInterval', 3600);
+
 	var stockCodes = Settings.option('stockCodes');
 	this.menu = new StockMenu(stockCodes);
 	var theMenu = this.menu;
 
 	var getSettingsServiceURL = function(){
 		var deviceToken = Pebble.getWatchToken();
-		//var settingsServiceURL = 'http://192.168.31.100:3000/form?appName=ChinaStock&deviceID='+deviceToken;
+		//var settingsServiceURL = 'http://192.168.0.110:3000/form?appName=ChinaStock&deviceID='+deviceToken;
+		//var settingsServiceURL = 'http://192.168.199.100:3000/form?appName=ChinaStock&deviceID='+deviceToken;
 		var settingsServiceURL = 'http://pebblesettings.avosapps.com/form?appName=ChinaStock&deviceID='+deviceToken;
 		console.log('settings service URL: '+settingsServiceURL);
 		return settingsServiceURL;
@@ -20,6 +28,23 @@ var App = function(arg){
 		{ url: settingsServiceURL },
 		function(e) {
 			console.log('opening configurable');
+			var params = [];
+			if(stockCodes){
+				for(var i=0; i<stockCodes.length; i++){
+					params.push("stockCode="+stockCodes[i]);
+				}
+			}
+			var shouldAutoRefresh = Settings.option('shouldAutoRefresh');
+			if(shouldAutoRefresh===undefined)
+				shouldAutoRefresh = false;
+			params.push("shouldAutoRefresh="+shouldAutoRefresh);
+			var autoRefreshInterval = Settings.option('autoRefreshInterval');
+			if(autoRefreshInterval===undefined)
+				autoRefreshInterval = 600;
+			params.push("autoRefreshInterval="+autoRefreshInterval);
+			var url = e.url+"&"+params.join("&");
+			console.log('settings service URL: '+url);
+			return url;
 		},
 		function(e) {
 			console.log('closed configurable');
@@ -33,8 +58,21 @@ var App = function(arg){
 			stockCodes = e.options.stockCodes;
 			if(stockCodes!==undefined)
 				Settings.option('stockCodes', stockCodes);
-			// Reload stock list
+			var shouldAutoRefresh = e.options.shouldAutoRefresh;
+			if(shouldAutoRefresh!==undefined)
+				Settings.option('shouldAutoRefresh', shouldAutoRefresh);
+			var autoRefreshInterval = e.options.autoRefreshInterval;
+			if(autoRefreshInterval!==undefined)
+				Settings.option('autoRefreshInterval', autoRefreshInterval);
+
+			var topIndex = WindowStack.index(WindowStack.top());
+			console.log('topIndex: ' + topIndex);
+			if(topIndex!=0){
+				WindowStack.pop();
+			}
 			theMenu.loadData(stockCodes);
+			theMenu.stopAutoRefresh();
+			theMenu.startAutoRefresh();
 		}
 	);
 };

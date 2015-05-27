@@ -1,7 +1,7 @@
 var UI = require('ui');
+var Settings = require('settings');
 var util2 = require('util2');
 var DataLoader = require('robinkam/chinastock/data-loader');
-var StockModel = require('robinkam/chinastock/stock-model');
 
 var StockDetail = function(stockData){
 	this.main = new UI.Card({
@@ -12,25 +12,40 @@ var StockDetail = function(stockData){
 		style: "small"
 	});
 	this.pageIndex = 0;
-	console.log('this.main: ' + util2.toString(this.main));
+	//console.log('this.main: ' + util2.toString(this.main));
   if(stockData){
 		this.updateInfo(stockData, 0);
 	}
-	this.main.delegate = this;
+	var theInstance = this;
 	this.main.on('click', 'select', function(e) {
 		console.log('Reload data for stock: ' + e.title);
 		if(stockData.stockCode)
-			e.card.delegate.loadData(stockData.stockCode);
+			theInstance.loadData(stockData.stockCode);
 		else
-			e.card.delegate.loadData(stockData.indexCode);
+			theInstance.loadData(stockData.indexCode);
 	});
 	this.main.on('click', 'up', function(e) {
 		console.log('Show previous page');
-		e.card.delegate.updateInfo(stockData, e.card.delegate.pageIndex-1);
+		theInstance.updateInfo(stockData, theInstance.pageIndex-1);
 	});
 	this.main.on('click', 'down', function(e) {
 		console.log('Show next page');
-		e.card.delegate.updateInfo(stockData, e.card.delegate.pageIndex+1);
+		theInstance.updateInfo(stockData, theInstance.pageIndex+1);
+	});
+	this.main.on('show', function() {
+		console.log('Card is shown!');
+		if(Settings.option('shouldAutoRefresh')){
+			theInstance.autoRefreshInterval = setInterval(function() {
+				if(stockData.stockCode)
+					theInstance.loadData(stockData.stockCode);
+				else
+					theInstance.loadData(stockData.indexCode);
+			}, Settings.option('autoRefreshInterval')*1000);
+		}
+	});
+	this.main.on('hide', function() {
+		console.log('Card is hidden!');
+		clearInterval(theInstance.autoRefreshInterval);
 	});
 };
 
@@ -48,17 +63,19 @@ StockDetail.prototype.updateInfo = function(stockData, pageIndex){
 			this.main.body("请检查股票代码是否正确");
 			return;
 		}
+		var delta = stockData.currentPrice-stockData.closingPriceYesterday;
+		var deltaPercent = delta/stockData.closingPriceYesterday*100;
+		var symbol = deltaPercent>=0?'+':'';
 		var pageSubtitles = [
-			'现价'+stockData.currentPrice+"元",
-			'现价'+stockData.currentPrice+"元",
-			'现价'+stockData.currentPrice+"元",
-			'买1~买5',
-			'卖1~卖5'
+			'现价'+stockData.currentPrice+"元\n"+symbol+delta.toFixed(2)+' '+symbol+deltaPercent.toFixed(2)+'%',
+			'现价'+stockData.currentPrice+"元\n"+symbol+delta.toFixed(2)+' '+symbol+deltaPercent.toFixed(2)+'%',
+			'现价'+stockData.currentPrice+"元\n"+symbol+delta.toFixed(2)+' '+symbol+deltaPercent.toFixed(2)+'%',
+			'买1 ~ 买5',
+			'卖1 ~ 卖5'
 		];
 		var pageBodies = [
 			[
 				"今开盘价"+stockData.openingPriceToday+"元",
-				"昨收盘价"+stockData.closingPriceYesterday+"元",
 				"今最高价"+stockData.highestPriceToday+"元",
 				"今最低价"+stockData.lowestPriceToday+"元",
 				stockData.date+" "+stockData.time
@@ -68,6 +85,7 @@ StockDetail.prototype.updateInfo = function(stockData, pageIndex){
 				"成交金额\n"+stockData.tradedAmountOfMoney/10000+"万元"
 			],
 			[
+				"昨收盘价"+stockData.closingPriceYesterday+"元",
 				"竞买价"+stockData.buyPrice+"元",
 				"竞卖价"+stockData.sellPrice+"元"
 			],
@@ -89,7 +107,7 @@ StockDetail.prototype.updateInfo = function(stockData, pageIndex){
 		this.main.title(stockData.stockName);
 		this.main.subtitle(pageSubtitles[pageIndex]);
 		this.main.body(pageBodies[pageIndex].join("\n"));
-	}else{
+	}else if(stockData.indexCode){
 		console.log('updateInfo: ' + stockData.indexCode);
 		if(stockData.indexName==undefined){
 			this.main.subtitle("没有数据");
@@ -105,10 +123,20 @@ StockDetail.prototype.updateInfo = function(stockData, pageIndex){
 		this.main.title(stockData.indexName);
 		this.main.subtitle('当前'+stockData.currentValue);
 		this.main.body(lines.join("\n"));
+	}else{
+		console.log('updateInfo: ' + stockData.invalidCode);
+		if(stockData.invalidCode==undefined){
+			this.main.subtitle("没有数据");
+			this.main.body("请检查指数代码是否正确");
+			return;
+		}
+		this.main.title(stockData.invalidCode);
+		this.main.subtitle(stockData.invalidReason);
 	}
-}
+};
 
 StockDetail.prototype.loadData = function(stockID){
+	var theInstance = this;
 	var theCard = this.main;
 	theCard.subtitle("正在刷新数据");
 	theCard.body("请耐心等待...");
@@ -117,10 +145,10 @@ StockDetail.prototype.loadData = function(stockID){
 		function(stockArray){
 			if(stockArray.length>0){
 				var stockData = stockArray[0];
-				theCard.delegate.updateInfo(stockData, 0);
+				theInstance.updateInfo(stockData, 0);
 			}else{
 				var stockData = {stockCode: stockID};
-				this.updateInfo(stockData, 0);
+				theInstance.updateInfo(stockData, 0);
 			}
 		},
 		function(error){

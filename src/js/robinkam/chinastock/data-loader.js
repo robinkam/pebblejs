@@ -6,6 +6,7 @@ var ajax = require('ajax');
 var util2 = require('util2');
 var StockModel = require('robinkam/chinastock/stock-model');
 var IndexModel = require('robinkam/chinastock/index-model');
+var InvalidModel = require('robinkam/chinastock/invalid-model');
 
 var DataLoader = {};
 
@@ -18,21 +19,31 @@ DataLoader.loadStockData = function(stockCodeArray, successCallback, errorCallba
 		var stockArray = [];
 		for(var i=0; i<stockCodeArray.length; i++){
 			var stockCode = stockCodeArray[i];
-			var re = new RegExp('.*'+stockCode+'.*', 'gi');
-			var lines = data.match(re);
+			if(stockCode.length==0)
+				continue;
+
 			var stockData;
-			if(lines.length>0){
-				if(stockCode.match(/s_[a-z]{2}[0-9]{6}/gi)){
-					stockData = new IndexModel(lines[0]);
-					stockData.indexCode = stockCode;
-				}else{
-					stockData = new StockModel(lines[0]);
-					stockData.stockCode = stockCode;
-				}
+			var re = new RegExp('.*'+stockCode+'=\"\";.*', 'gi');
+			var lines = data.match(re);
+			//console.log('invalidLine='+lines);
+			if(lines && lines.length>0){
+				stockData = new InvalidModel(stockCode);
 			}else{
-				stockData = new StockModel();
+				re = new RegExp('.*'+stockCode+'.*', 'gi');
+				lines = data.match(re);
+				if(lines && lines.length>0){//found matched line in the results.
+					if(stockCode.match(/s_[a-z]{2}[0-9]{6}/gi)){
+						stockData = new IndexModel(lines[0]);
+						stockData.indexCode = stockCode;
+					}else{
+						stockData = new StockModel(lines[0]);
+						stockData.stockCode = stockCode;
+					}
+				}else{//did not find matched line in the results.
+					stockData = new InvalidModel(stockCode);
+				}
 			}
-			console.log('Stock data is: ' + util2.toString(stockData));
+			//console.log('Stock data is: ' + util2.toString(stockData));
 			stockArray.push(stockData);
 		}
 		return stockArray;
@@ -42,7 +53,7 @@ DataLoader.loadStockData = function(stockCodeArray, successCallback, errorCallba
 			url: requestUrl
 		},
 		function(data, status, request) {
-			console.log('Response data is: ' + data);
+			//console.log('Response data is: ' + data);
 			var stockArray = getStockArrayFromRawData(data);
 			successCallback(stockArray);
 		},
