@@ -1,6 +1,8 @@
 var WindowStack = require('ui/windowstack');
 var Settings = require('settings');
 var util2 = require('util2');
+var Clock = require('clock');
+var Wakeup = require('wakeup');
 var StockMenu = require('robinkam/chinastock/stock-menu');
 
 var App = function(arg){
@@ -9,14 +11,42 @@ var App = function(arg){
 		Settings.option('shouldAutoRefresh', false);
 	if(Settings.option('autoRefreshInterval')===undefined)
 		Settings.option('autoRefreshInterval', 3600);
+	if(Settings.option('shouldAutoWakeUp')===undefined)
+		Settings.option('shouldAutoWakeUp', false);
 
 	var stockCodes = Settings.option('stockCodes');
 	this.menu = new StockMenu(stockCodes);
 	var theMenu = this.menu;
 
+	var scheduleCallback = function(e) {
+		if (e.failed) {
+			// Log the error reason
+			console.log('Wakeup set failed: ' + e.error);
+		} else {
+			console.log('Wakeup set! Event ID: ' + e.id);
+		}
+	};
+	var setWakeUpSchedule = function (e) {
+		Wakeup.cancel('all');
+		var shouldAutoWakeUp = Settings.option('shouldAutoWakeUp');
+		console.log("shouldAutoWakeUp="+shouldAutoWakeUp);
+		if(shouldAutoWakeUp){
+			var currentWeekday = (new Date()).getDay();
+			for(var i=0; i<4; i++){
+				var validWeekday = currentWeekday+i+1;
+				if(validWeekday>5)
+					validWeekday = validWeekday-5;
+				console.log("validWeekday="+validWeekday);
+				Wakeup.schedule({time: Clock.weekday(validWeekday, 9, 30),data: { time: '9:30' }},scheduleCallback);
+				Wakeup.schedule({time: Clock.weekday(validWeekday, 13, 0),data: { time: '13:00' }},scheduleCallback);
+			}
+		}
+	};
+	setWakeUpSchedule();
+
 	var getSettingsServiceURL = function(){
 		var deviceToken = Pebble.getWatchToken();
-		//var settingsServiceURL = 'http://192.168.0.110:3000/form?appName=ChinaStock&deviceID='+deviceToken;
+		//var settingsServiceURL = 'http://192.168.31.245:3000/form?appName=ChinaStock&deviceID='+deviceToken;
 		//var settingsServiceURL = 'http://192.168.199.100:3000/form?appName=ChinaStock&deviceID='+deviceToken;
 		var settingsServiceURL = 'http://pebblesettings.avosapps.com/form?appName=ChinaStock&deviceID='+deviceToken;
 		console.log('settings service URL: '+settingsServiceURL);
@@ -42,6 +72,11 @@ var App = function(arg){
 			if(autoRefreshInterval===undefined)
 				autoRefreshInterval = 600;
 			params.push("autoRefreshInterval="+autoRefreshInterval);
+			var shouldAutoWakeUp = Settings.option('shouldAutoWakeUp');
+			if(shouldAutoWakeUp===undefined)
+				shouldAutoWakeUp = false;
+			params.push("shouldAutoWakeUp="+shouldAutoWakeUp);
+
 			var url = e.url+"&"+params.join("&");
 			console.log('settings service URL: '+url);
 			return url;
@@ -64,12 +99,16 @@ var App = function(arg){
 			var autoRefreshInterval = e.options.autoRefreshInterval;
 			if(autoRefreshInterval!==undefined)
 				Settings.option('autoRefreshInterval', autoRefreshInterval);
+			var shouldAutoWakeUp = e.options.shouldAutoWakeUp;
+			if(shouldAutoWakeUp!==undefined)
+				Settings.option('shouldAutoWakeUp', shouldAutoWakeUp);
 
 			var topIndex = WindowStack.index(WindowStack.top());
 			console.log('topIndex: ' + topIndex);
 			if(topIndex!=0){
 				WindowStack.pop();
 			}
+			setWakeUpSchedule(e);
 			theMenu.loadData(stockCodes);
 			theMenu.stopAutoRefresh();
 			theMenu.startAutoRefresh();
@@ -79,7 +118,7 @@ var App = function(arg){
 
 App.prototype.start = function(){
 	this.menu.show();
-}
+};
 
 module.exports = App;
 

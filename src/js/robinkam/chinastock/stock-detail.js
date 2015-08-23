@@ -1,4 +1,5 @@
 var UI = require('ui');
+var Accel = require('ui/accel');
 var Settings = require('settings');
 var util2 = require('util2');
 var DataLoader = require('robinkam/chinastock/data-loader');
@@ -17,13 +18,20 @@ var StockDetail = function(stockData){
 		this.updateInfo(stockData, 0);
 	}
 	var theInstance = this;
-	this.main.on('click', 'select', function(e) {
-		console.log('Reload data for stock: ' + e.title);
+	var reloadData = function(e) {
+		if(e.title)
+			console.log('Reload data for stock: ' + e.title);
 		if(stockData.stockCode)
 			theInstance.loadData(stockData.stockCode);
 		else
 			theInstance.loadData(stockData.indexCode);
-	});
+	};
+
+	//扭动手腕看表的时候刷新数据
+	Accel.init();
+	this.main.on('accelTap', reloadData);
+
+	this.main.on('click', 'select', reloadData);
 	this.main.on('click', 'up', function(e) {
 		console.log('Show previous page');
 		theInstance.updateInfo(stockData, theInstance.pageIndex-1);

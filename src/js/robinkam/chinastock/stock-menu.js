@@ -1,4 +1,5 @@
 var UI = require('ui');
+var Accel = require('ui/accel');
 var Settings = require('settings');
 var util2 = require('util2');
 var StockDetail = require('robinkam/chinastock/stock-detail');
@@ -18,7 +19,15 @@ var StockMenu = function(stockIDs){
       items: []
     }]
   });
+
+
   var theInstance = this;
+  //扭动手腕看表的时候刷新数据
+  Accel.init();
+  this.menu.on('accelTap', function (e) {
+    console.log('stockIDs: ' + stockIDs);
+    theInstance.loadData(stockIDs);
+  });
   this.menu.on('select', function(e) {
     console.log('Selected item #' + e.itemIndex + ' of section #' + e.sectionIndex);
     console.log('The item is titled "' + e.item.title + '"');
@@ -68,6 +77,7 @@ StockMenu.prototype.loadData = function(stockIDs){
       var menuItemsForStock = [];
       var menuItemsForIndex = [];
       var menuItemsForInvalid = [];
+      var symbol, line1, line2;
       for(var i=0; i<stockArray.length; i++){
         var stockData = stockArray[i];
         var menuItem = {title: "无数据", subtitle: "请检查股票代码", stockData:null};
@@ -75,9 +85,10 @@ StockMenu.prototype.loadData = function(stockIDs){
           if(stockData.stockName){
             var delta = stockData.currentPrice-stockData.closingPriceYesterday;
             var deltaPercent = delta/stockData.closingPriceYesterday*100;
-            var symbol = deltaPercent>=0?'+':'';
-            var stockPrice = stockData.currentPrice+' '+symbol+delta.toFixed(2)+' '+symbol+deltaPercent.toFixed(2)+'%';
-            menuItem = {title: stockData.stockName, subtitle: stockPrice, stockData:stockData};
+            symbol = deltaPercent >= 0 ? '+' : '';
+            line1 = symbol+delta.toFixed(2)+' '+symbol+deltaPercent.toFixed(2)+'%';
+            line2 = stockData.stockName+'  '+stockData.currentPrice;
+            menuItem = {title: line1, subtitle: line2, stockData:stockData};
             menuItemsForStock.push(menuItem);
           }else{
             menuItem = {title: stockData.invalidCode, subtitle: stockData.invalidReason, stockData:stockData};
@@ -86,9 +97,10 @@ StockMenu.prototype.loadData = function(stockIDs){
           //console.log('Menu item is: ' + util2.toString(menuItem));
         }else if(stockData.indexCode){
           if(stockData.indexName){
-            var symbol = stockData.deltaToday>=0?"+":"";
-            var indexValue = symbol+stockData.currentValue+' '+symbol+stockData.percentDeltaToday+'%';
-            menuItem = {title: stockData.indexName, subtitle: indexValue, stockData:stockData};
+            symbol = stockData.deltaToday>=0?"+":"";
+            line1 = symbol+stockData.percentDeltaToday+'%'+stockData.currentValue;
+            line2 = stockData.indexName;
+            menuItem = {title: line1, subtitle: line2, stockData:stockData};
             menuItemsForIndex.push(menuItem);
           }else{
             menuItem = {title: stockData.indexCode, subtitle: "代码格式有误", stockData:stockData};
