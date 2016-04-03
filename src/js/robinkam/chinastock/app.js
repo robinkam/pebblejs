@@ -23,7 +23,7 @@ var App = function(arg){
 			// Log the error reason
 			console.log('Wakeup set failed: ' + e.error);
 		} else {
-			console.log('Wakeup set! Event ID: ' + e.id);
+			console.log('Wakeup set! Event ID: ' + e.id + '; Event Data: ' + JSON.stringify(e.data));
 		}
 	};
 	var setWakeUpSchedule = function (e) {
@@ -37,8 +37,10 @@ var App = function(arg){
 				if(validWeekday>5)
 					validWeekday = validWeekday-5;
 				console.log("validWeekday="+validWeekday);
-				Wakeup.schedule({time: Clock.weekday(validWeekday, 9, 30),data: { time: '9:30' }},scheduleCallback);
-				Wakeup.schedule({time: Clock.weekday(validWeekday, 13, 0),data: { time: '13:00' }},scheduleCallback);
+				var openTimeAM = Clock.weekday(validWeekday, 9, 30);
+				var openTimePM = Clock.weekday(validWeekday, 13, 0);
+				Wakeup.schedule({time: openTimeAM, data: { time: (new Date(openTimeAM*1000)).toLocaleString() }},scheduleCallback);
+				Wakeup.schedule({time: openTimePM, data: { time: (new Date(openTimePM*1000)).toLocaleString() }},scheduleCallback);
 			}
 		}
 	};
