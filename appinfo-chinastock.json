@@ -1,0 +1,45 @@
+{
+  "uuid": "743e9921-996c-40d3-b9f9-0ba5ec201c34",
+  "shortName": "ChinaStock",
+  "longName": "China Stock",
+  "companyName": "Robin Kam",
+  "versionCode": 1,
+  "versionLabel": "0.4",
+  "capabilities": [
+    "configurable"
+  ],
+  "watchapp": {
+    "watchface": false
+  },
+  "appKeys": {},
+  "resources": {
+    "media": [
+      {
+        "menuIcon": true,
+        "type": "png",
+        "name": "IMAGE_MENU_ICON",
+        "file": "images/ChinaStockIcon28.png"
+      },
+      {
+        "type": "png",
+        "name": "IMAGE_LOGO_SPLASH",
+        "file": "images/logo_splash.png"
+      },
+      {
+        "type": "png",
+        "name": "IMAGE_TILE_SPLASH",
+        "file": "images/tile_splash.png"
+      },
+      {
+        "type": "font",
+        "name": "MONO_FONT_14",
+        "file": "fonts/UbuntuMono-Regular.ttf"
+      }
+    ]
+  },
+  "targetPlatforms": [
+    "aplite",
+    "basalt"
+  ],
+  "sdkVersion": "3"
+}
