@@ -139,9 +139,11 @@ StockDetail.prototype.updateInfo = function(stockData, pageIndex){
 		}
 		var symbol = stockData.deltaToday>=0?"+":"";
 		var lines = [
-			"今日涨跌\n"+symbol+stockData.percentDeltaToday+"% "+symbol+stockData.deltaToday,
-			"成交量"+stockData.tradedAmountOfStock+"手",
-			"成交额\n"+stockData.tradedAmountOfMoney+"万元"
+			"今日涨跌",
+			symbol+stockData.percentDeltaToday+"% "+symbol+stockData.deltaToday,
+			"成交",
+			(stockData.tradedAmountOfStock/10000)+"万手",
+			(stockData.tradedAmountOfMoney/10000)+"亿元"
 		];
 		this.main.title(stockData.indexName);
 		this.main.subtitle('当前'+stockData.currentValue);
