@@ -113,6 +113,8 @@ StockMenu.prototype.loadData = function(stockIDs){
           menuItemsForInvalid.push(menuItem);
         }
       }
+      if(menuItemsForStock.length>0)theMenu.section(0, {title:'Stock (at '+menuItemsForStock[0].stockData.time+')'});
+      if(menuItemsForStock.length>0 && menuItemsForIndex.length>0)theMenu.section(1, {title:'Index (at '+menuItemsForStock[0].stockData.time+')'});
       theMenu.items(0, menuItemsForStock);
       theMenu.items(1, menuItemsForIndex);
       theMenu.items(2, menuItemsForInvalid);
