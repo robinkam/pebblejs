@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-pebble build
-#pebble install --phone 192.168.31.129
-pebble install --emulator aplite
-pebble logs --phone 192.168.31.129
+pebble build && pebble install --phone 192.168.100.174 --logs
+#pebble build && pebble install --phone 192.168.31.129 --logs
+#pebble build && pebble install --emulator basalt --logs
+#pebble emu-app-config

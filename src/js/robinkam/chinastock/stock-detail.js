@@ -5,11 +5,24 @@ var util2 = require('util2');
 var DataLoader = require('robinkam/chinastock/data-loader');
 
 var StockDetail = function(stockData){
+	var backgroundColor = 'white';
+	var delta = 0;
+	if(stockData.stockCode){
+		delta = stockData.currentPrice-stockData.closingPriceYesterday;
+	}else if(stockData.indexCode){
+		delta = stockData.deltaToday;
+	}
+	if(delta>0){
+		backgroundColor = 'red';
+	}else if(delta<0){
+		backgroundColor = 'green';
+	}
 	this.main = new UI.Card({
 		title: '数据无效',
 		subtitle: '请返回上一页面',
 		body: '再试试别的股票',
 		scrollable:false,
+		backgroundColor:backgroundColor,
 		style: "small"
 	});
 	this.pageIndex = 0;
@@ -62,7 +75,7 @@ StockDetail.prototype.show = function(){
 };
 
 StockDetail.prototype.updateInfo = function(stockData, pageIndex){
-	pageIndex = (pageIndex+5)%5;
+	pageIndex = (pageIndex+4)%4;
 	this.pageIndex = pageIndex;
 	if(stockData.stockCode){
 		console.log('updateInfo: ' + stockData.stockCode + "["+pageIndex+"/5]");
@@ -74,25 +87,27 @@ StockDetail.prototype.updateInfo = function(stockData, pageIndex){
 		var delta = stockData.currentPrice-stockData.closingPriceYesterday;
 		var deltaPercent = delta/stockData.closingPriceYesterday*100;
 		var symbol = deltaPercent>=0?'+':'';
+		if(delta>0){
+			this.main.backgroundColor = 'red';
+		}else if(delta<0){
+			this.main.backgroundColor = 'green';
+		}
 		var pageSubtitles = [
-			'现价'+stockData.currentPrice+"元\n"+symbol+delta.toFixed(2)+' '+symbol+deltaPercent.toFixed(2)+'%',
-			'现价'+stockData.currentPrice+"元\n"+symbol+delta.toFixed(2)+' '+symbol+deltaPercent.toFixed(2)+'%',
-			'现价'+stockData.currentPrice+"元\n"+symbol+delta.toFixed(2)+' '+symbol+deltaPercent.toFixed(2)+'%',
+			'现价'+parseFloat(stockData.currentPrice).toFixed(2)+"元\n"+symbol+delta.toFixed(2)+' '+symbol+deltaPercent.toFixed(2)+'%',
+			parseFloat(stockData.currentPrice).toFixed(2)+" "+symbol+delta.toFixed(2),
 			'买1 ~ 买5',
 			'卖1 ~ 卖5'
 		];
 		var pageBodies = [
 			[
-				"今开盘价"+stockData.openingPriceToday+"元",
-				"今最高价"+stockData.highestPriceToday+"元",
-				"今最低价"+stockData.lowestPriceToday+"元",
+				"开盘"+parseFloat(stockData.openingPriceToday).toFixed(2)+"元",
+				"最高"+parseFloat(stockData.highestPriceToday).toFixed(2)+"元",
+				"最低"+parseFloat(stockData.lowestPriceToday).toFixed(2)+"元",
 				stockData.date+" "+stockData.time
 			],
 			[
-				"成交量\n"+stockData.tradedAmountOfStock/10000+"万股",
-				"成交金额\n"+stockData.tradedAmountOfMoney/10000+"万元"
-			],
-			[
+				"成交"+parseFloat(stockData.tradedAmountOfStock/1000000).toFixed(2)+"万手",
+				"成交"+parseFloat(stockData.tradedAmountOfMoney/10000).toFixed(2)+"万元",
 				"昨收盘价"+stockData.closingPriceYesterday+"元",
 				"竞买价"+stockData.buyPrice+"元",
 				"竞卖价"+stockData.sellPrice+"元"
