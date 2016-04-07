@@ -135,13 +135,12 @@ StockDetail.prototype.updateInfo = function(stockData, pageIndex){
 			this.main.body("请检查指数代码是否正确");
 			return;
 		}
-		var symbol = stockData.deltaToday>=0?"+":"";
 		var lines = [
 			"今日涨跌",
-			symbol+stockData.percentDeltaToday+"% "+symbol+stockData.deltaToday,
+			stockData.deltaToday+' '+stockData.percentDeltaToday,
 			"成交",
-			(stockData.tradedAmountOfStock/10000)+"万手",
-			(stockData.tradedAmountOfMoney/10000)+"亿元"
+			stockData.tradedAmountOfMoney,
+			stockData.tradedAmountOfStock
 		];
 		this.main.title(stockData.indexName);
 		this.main.subtitle('当前'+stockData.currentValue);

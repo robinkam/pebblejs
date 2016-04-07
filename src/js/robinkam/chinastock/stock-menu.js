@@ -77,7 +77,7 @@ StockMenu.prototype.loadData = function(stockIDs){
       var menuItemsForStock = [];
       var menuItemsForIndex = [];
       var menuItemsForInvalid = [];
-      var symbol, line1, line2;
+      var line1, line2;
       for(var i=0; i<stockArray.length; i++){
         var stockData = stockArray[i];
         var menuItem = {title: "无数据", subtitle: "请检查股票代码", stockData:null};
@@ -94,9 +94,8 @@ StockMenu.prototype.loadData = function(stockIDs){
           //console.log('Menu item is: ' + util2.toString(menuItem));
         }else if(stockData.indexCode){
           if(stockData.indexName){
-            symbol = stockData.deltaToday>=0?"+":"";
-            line1 = symbol+stockData.percentDeltaToday+'%'+stockData.currentValue;
-            line2 = stockData.indexName;
+            line1 = stockData.currentValue+' '+stockData.deltaToday;
+            line2 = stockData.indexName+' '+stockData.percentDeltaToday;
             menuItem = {title: line1, subtitle: line2, stockData:stockData};
             menuItemsForIndex.push(menuItem);
           }else{
