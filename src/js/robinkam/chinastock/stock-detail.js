@@ -85,46 +85,44 @@ StockDetail.prototype.updateInfo = function(stockData, pageIndex){
 			return;
 		}
 		var delta = stockData.currentPrice-stockData.closingPriceYesterday;
-		var deltaPercent = delta/stockData.closingPriceYesterday*100;
-		var symbol = deltaPercent>=0?'+':'';
 		if(delta>0){
 			this.main.backgroundColor = 'red';
 		}else if(delta<0){
 			this.main.backgroundColor = 'green';
 		}
 		var pageSubtitles = [
-			'现价'+parseFloat(stockData.currentPrice).toFixed(2)+"元\n"+symbol+delta.toFixed(2)+' '+symbol+deltaPercent.toFixed(2)+'%',
-			parseFloat(stockData.currentPrice).toFixed(2)+" "+symbol+delta.toFixed(2),
-			'买1 ~ 买5',
-			'卖1 ~ 卖5'
+			stockData.currentPrice+' '+stockData.deltaPrice,
+			stockData.currentPrice+' '+stockData.deltaPercent,
+			'卖5 ~ 卖1',
+			'买1 ~ 买5'
 		];
 		var pageBodies = [
 			[
-				"开盘"+parseFloat(stockData.openingPriceToday).toFixed(2)+"元",
-				"最高"+parseFloat(stockData.highestPriceToday).toFixed(2)+"元",
-				"最低"+parseFloat(stockData.lowestPriceToday).toFixed(2)+"元",
+				"今开盘"+stockData.openingPriceToday+"元",
+				"昨收盘"+stockData.closingPriceYesterday+"元",
+				"成交"+stockData.tradedAmountOfStock,
+				"成交"+stockData.tradedAmountOfMoney,
 				stockData.date+" "+stockData.time
 			],
 			[
-				"成交"+parseFloat(stockData.tradedAmountOfStock/1000000).toFixed(2)+"万手",
-				"成交"+parseFloat(stockData.tradedAmountOfMoney/10000).toFixed(2)+"万元",
-				"昨收盘价"+stockData.closingPriceYesterday+"元",
-				"竞买价"+stockData.buyPrice+"元",
-				"竞卖价"+stockData.sellPrice+"元"
+				"最高"+stockData.highestPriceToday,
+				"最低"+stockData.lowestPriceToday,
+				"竞买价"+stockData.buyPrice,
+				"竞卖价"+stockData.sellPrice
 			],
 			[
-				"1 "+stockData.buyers[0].stock+"股 "+stockData.buyers[0].price+"元",
-				"2 "+stockData.buyers[1].stock+"股 "+stockData.buyers[1].price+"元",
-				"3 "+stockData.buyers[2].stock+"股 "+stockData.buyers[2].price+"元",
-				"4 "+stockData.buyers[3].stock+"股 "+stockData.buyers[3].price+"元",
-				"5 "+stockData.buyers[4].stock+"股 "+stockData.buyers[4].price+"元"
+				"5 "+stockData.sellers[4].price+" "+stockData.sellers[4].stock,
+				"4 "+stockData.sellers[3].price+" "+stockData.sellers[3].stock,
+				"3 "+stockData.sellers[2].price+" "+stockData.sellers[2].stock,
+				"2 "+stockData.sellers[1].price+" "+stockData.sellers[1].stock,
+				"1 "+stockData.sellers[0].price+" "+stockData.sellers[0].stock
 			],
 			[
-				"1 "+stockData.sellers[0].stock+"股 "+stockData.sellers[0].price+"元",
-				"2 "+stockData.sellers[1].stock+"股 "+stockData.sellers[1].price+"元",
-				"3 "+stockData.sellers[2].stock+"股 "+stockData.sellers[2].price+"元",
-				"4 "+stockData.sellers[3].stock+"股 "+stockData.sellers[3].price+"元",
-				"5 "+stockData.sellers[4].stock+"股 "+stockData.sellers[4].price+"元"
+				"1 "+stockData.buyers[0].price+" "+stockData.buyers[0].stock,
+				"2 "+stockData.buyers[1].price+" "+stockData.buyers[1].stock,
+				"3 "+stockData.buyers[2].price+" "+stockData.buyers[2].stock,
+				"4 "+stockData.buyers[3].price+" "+stockData.buyers[3].stock,
+				"5 "+stockData.buyers[4].price+" "+stockData.buyers[4].stock
 			]
 		];
 		this.main.title(stockData.stockName);
