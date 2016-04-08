@@ -50,7 +50,7 @@ var App = function(arg){
 		var deviceToken = Pebble.getWatchToken();
 		//var settingsServiceURL = 'http://localhost:3000/form?appName=ChinaStock&deviceID='+deviceToken;
 		//var settingsServiceURL = 'http://192.168.199.100:3000/form?appName=ChinaStock&deviceID='+deviceToken;
-		var settingsServiceURL = 'http://pebblesettings.avosapps.com/form?appName=ChinaStock&deviceID='+deviceToken;
+		var settingsServiceURL = 'http://pebblesettings.leanapp.cn/form?appName=ChinaStock&deviceID='+deviceToken;
 		console.log('settings service URL: '+settingsServiceURL);
 		return settingsServiceURL;
 	};
