@@ -7,6 +7,10 @@ var DataLoader = require('robinkam/chinastock/data-loader');
 
 var StockMenu = function(stockIDs){
   this.stockIDs = stockIDs;
+  this.stockSectionTitle = "Stock";
+  this.indexSectionTitle = "Index";
+  this.menuItemsForStock = [];
+  this.menuItemsForIndex = [];
   this.menu = new UI.Menu({
     sections: [{
       title: 'Stock',
@@ -56,20 +60,47 @@ StockMenu.prototype.show = function(){
   this.loadData(this.stockIDs);
 };
 
+StockMenu.prototype.showLoading = function () {
+  console.log('show loading');
+  var loadingCharacter = ".", loadingCount = 1, _this = this;
+  clearInterval(this.loadingTimer);
+  this.loadingTimer = setInterval(function () {
+    var loadingIndicator = "";
+    for(var i=0; i<loadingCount%4; i++){
+      loadingIndicator += loadingCharacter;
+    }
+    _this.menu.section(0, {title:_this.stockSectionTitle+loadingIndicator});
+    loadingCount++;
+  }, 250);
+};
+
+StockMenu.prototype.hideLoading = function () {
+  console.log('hide loading');
+  clearInterval(this.loadingTimer);
+  this.menu.section(0, this.stockSectionTitle);
+};
+
 StockMenu.prototype.loadData = function(stockIDs){
   this.stockIDs = stockIDs;
+  var _this = this;
   var theMenu = this.menu;
   if(stockIDs==undefined){
     theMenu.items(0, [{title: '请添加股票', subtitle: '先在手机上设置'}]);
     return;
   }
-  theMenu.items(0, [{title: '正在载入...', subtitle: '请耐心等待'}]);
-  theMenu.items(1, [{title: '正在载入...', subtitle: '请耐心等待'}]);
+  if(this.menuItemsForStock.length==0){
+    theMenu.items(0, [{title: '正在载入...', subtitle: '请耐心等待'}]);
+  }
+  if(this.menuItemsForIndex.length==0){
+    theMenu.items(1, [{title: '正在载入...', subtitle: '请耐心等待'}]);
+  }
   theMenu.items(2, []);
 
+  _this.showLoading();
   DataLoader.loadStockData(
     stockIDs,
     function(stockArray){
+      _this.hideLoading();
       if(stockArray.length==0){
         theMenu.items(0, [{title: '没有数据', subtitle: '请稍后重试'}]);
         return;
@@ -109,11 +140,19 @@ StockMenu.prototype.loadData = function(stockIDs){
           menuItemsForInvalid.push(menuItem);
         }
       }
-      if(menuItemsForStock.length>0)theMenu.section(0, {title:'Stock (at '+menuItemsForStock[0].stockData.time+')'});
-      if(menuItemsForStock.length>0 && menuItemsForIndex.length>0)theMenu.section(1, {title:'Index (at '+menuItemsForStock[0].stockData.time+')'});
+      if(menuItemsForStock.length>0){
+        _this.stockSectionTitle = 'Stock (at '+menuItemsForStock[0].stockData.time+')';
+        theMenu.section(0, {title:_this.stockSectionTitle});
+      }
+      if(menuItemsForIndex.length>0){
+        _this.indexSectionTitle = 'Index (at '+menuItemsForStock[0].stockData.time+')';
+        theMenu.section(1, {title:_this.indexSectionTitle});
+      }
       theMenu.items(0, menuItemsForStock);
       theMenu.items(1, menuItemsForIndex);
       theMenu.items(2, menuItemsForInvalid);
+      _this.menuItemsForStock = menuItemsForStock;
+      _this.menuItemsForIndex = menuItemsForIndex;
     },
     function(error){
 

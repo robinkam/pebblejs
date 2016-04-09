@@ -5,6 +5,7 @@ var util2 = require('util2');
 var DataLoader = require('robinkam/chinastock/data-loader');
 
 var StockDetail = function(stockData){
+	this.stockData = stockData;
 	var backgroundColor = 'white';
 	var delta = 0;
 	if(stockData.stockCode){
@@ -72,6 +73,34 @@ var StockDetail = function(stockData){
 
 StockDetail.prototype.show = function(){
   this.main.show();
+};
+
+StockDetail.prototype.showLoading = function () {
+	console.log('show loading');
+	var loadingCharacter = ".", loadingCount = 0, _this = this;
+	clearInterval(this.loadingTimer);
+	this.loadingTimer = setInterval(function () {
+		var loadingIndicator = "";
+		for(var i=0; i<loadingCount%4; i++){
+			loadingIndicator += loadingCharacter;
+		}
+		if(_this.stockData.stockCode){
+			_this.main.title(_this.stockData.stockName+loadingIndicator);
+		}else if(_this.stockData.indexCode){
+			_this.main.title(_this.stockData.indexName+loadingIndicator);
+		}
+		loadingCount++;
+	}, 250);
+};
+
+StockDetail.prototype.hideLoading = function () {
+	console.log('hide loading');
+	clearInterval(this.loadingTimer);
+	if(this.stockData.stockCode){
+		this.main.title(this.stockData.stockName);
+	}else if(this.stockData.indexCode){
+		this.main.title(this.stockData.indexName);
+	}
 };
 
 StockDetail.prototype.updateInfo = function(stockData, pageIndex){
@@ -160,18 +189,17 @@ StockDetail.prototype.updateInfo = function(stockData, pageIndex){
 StockDetail.prototype.loadData = function(stockID){
 	var theInstance = this;
 	var theCard = this.main;
-	theCard.subtitle("正在刷新数据");
-	theCard.body("请耐心等待...");
+	theInstance.showLoading();
 	DataLoader.loadStockData(
 		[stockID],
 		function(stockArray){
+			theInstance.hideLoading();
 			if(stockArray.length>0){
-				var stockData = stockArray[0];
-				theInstance.updateInfo(stockData, 0);
+				theInstance.stockData = stockArray[0];
 			}else{
-				var stockData = {stockCode: stockID};
-				theInstance.updateInfo(stockData, 0);
+				theInstance.stockData = {stockCode: stockID};
 			}
+			theInstance.updateInfo(theInstance.stockData, 0);
 		},
 		function(error){
 
