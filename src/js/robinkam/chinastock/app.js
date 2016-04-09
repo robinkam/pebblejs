@@ -36,11 +36,11 @@ var App = function(arg){
 				var validWeekday = currentWeekday+i+1;
 				if(validWeekday>5)
 					validWeekday = validWeekday-5;
-				console.log("validWeekday="+validWeekday);
 				var openTimeAM = Clock.weekday(validWeekday, 9, 30);
 				var openTimePM = Clock.weekday(validWeekday, 13, 0);
-				Wakeup.schedule({time: openTimeAM, data: { time: (new Date(openTimeAM*1000)).toLocaleString() }},scheduleCallback);
-				Wakeup.schedule({time: openTimePM, data: { time: (new Date(openTimePM*1000)).toLocaleString() }},scheduleCallback);
+				console.log(JSON.stringify({validWeekday:validWeekday, openTimeAM:openTimeAM, openTimePM:openTimePM}));
+				Wakeup.schedule({time: openTimeAM},scheduleCallback);
+				Wakeup.schedule({time: openTimePM},scheduleCallback);
 			}
 		}
 	};
