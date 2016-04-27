@@ -6,24 +6,14 @@ var DataLoader = require('robinkam/chinastock/data-loader');
 
 var StockDetail = function(stockData){
 	this.stockData = stockData;
-	var backgroundColor = 'white';
-	var delta = 0;
-	if(stockData.stockCode){
-		delta = stockData.currentPrice-stockData.closingPriceYesterday;
-	}else if(stockData.indexCode){
-		delta = stockData.deltaToday;
-	}
-	if(delta>0){
-		backgroundColor = 'red';
-	}else if(delta<0){
-		backgroundColor = 'green';
-	}
+	var color = this.getColor();
 	this.main = new UI.Card({
 		title: '数据无效',
 		subtitle: '请返回上一页面',
 		body: '再试试别的股票',
 		scrollable:false,
-		backgroundColor:backgroundColor,
+		titleColor:color,
+		subtitleColor:color,
 		style: "small"
 	});
 	this.pageIndex = 0;
@@ -71,6 +61,22 @@ var StockDetail = function(stockData){
 	});
 };
 
+StockDetail.prototype.getColor = function () {
+	var color = 'black';
+	var delta = 0;
+	if(this.stockData.stockCode){
+		delta = this.stockData.currentPrice-this.stockData.closingPriceYesterday;
+	}else if(this.stockData.indexCode){
+		delta = this.stockData.deltaToday;
+	}
+	if(delta>0){
+		color = 'red';
+	}else if(delta<0){
+		color = 'green';
+	}
+	return color;
+};
+
 StockDetail.prototype.show = function(){
   this.main.show();
 };
@@ -113,12 +119,7 @@ StockDetail.prototype.updateInfo = function(stockData, pageIndex){
 			this.main.body("请检查股票代码是否正确");
 			return;
 		}
-		var delta = stockData.currentPrice-stockData.closingPriceYesterday;
-		if(delta>0){
-			this.main.backgroundColor = 'red';
-		}else if(delta<0){
-			this.main.backgroundColor = 'green';
-		}
+
 		var pageSubtitles = [
 			stockData.currentPrice+' '+stockData.deltaPrice,
 			stockData.currentPrice+' '+stockData.deltaPercent,
@@ -154,9 +155,15 @@ StockDetail.prototype.updateInfo = function(stockData, pageIndex){
 				"5 "+stockData.buyers[4].price+" "+stockData.buyers[4].stock
 			]
 		];
+
+		var color = this.getColor();
+		this.main.titleColor(color);
+		this.main.subtitleColor(color);
+
 		this.main.title(stockData.stockName);
 		this.main.subtitle(pageSubtitles[pageIndex]);
 		this.main.body(pageBodies[pageIndex].join("\n"));
+
 	}else if(stockData.indexCode){
 		console.log('updateInfo: ' + stockData.indexCode);
 		if(stockData.indexName==undefined){
