@@ -38,10 +38,12 @@ var StockDetail = function(stockData){
 	this.main.on('click', 'select', reloadData);
 	this.main.on('click', 'up', function(e) {
 		console.log('Show previous page');
+		DataLoader.trackEvent('clickUp@Detail');
 		theInstance.updateInfo(stockData, theInstance.pageIndex-1);
 	});
 	this.main.on('click', 'down', function(e) {
 		console.log('Show next page');
+		DataLoader.trackEvent('clickDown@Detail');
 		theInstance.updateInfo(stockData, theInstance.pageIndex+1);
 	});
 	this.main.on('show', function() {

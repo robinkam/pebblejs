@@ -4,6 +4,7 @@ var util2 = require('util2');
 var Clock = require('clock');
 var Wakeup = require('wakeup');
 var StockMenu = require('robinkam/chinastock/stock-menu');
+var DataLoader = require('robinkam/chinastock/data-loader');
 
 var App = function(arg){
 	//Settings.reset();
@@ -119,6 +120,7 @@ var App = function(arg){
 };
 
 App.prototype.start = function(){
+	DataLoader.trackEvent('appStart', {event:Pebble.getWatchToken()});
 	this.menu.show();
 };
 

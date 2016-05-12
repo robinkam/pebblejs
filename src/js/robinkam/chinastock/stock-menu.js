@@ -30,11 +30,13 @@ var StockMenu = function(stockIDs){
   Accel.init();
   this.menu.on('accelTap', function (e) {
     console.log('stockIDs: ' + stockIDs);
+    DataLoader.trackEvent('accelTap@Menu', {stockIds:stockIDs});
     theInstance.loadData(stockIDs);
   });
   this.menu.on('select', function(e) {
     console.log('Selected item #' + e.itemIndex + ' of section #' + e.sectionIndex);
     console.log('The item is titled "' + e.item.title + '"');
+    DataLoader.trackEvent('select@Menu', {stockCode:e.item.stockData.stockCode, stockName: e.item.stockData.stockName});
     var detail = new StockDetail(e.item.stockData);
     detail.show();
   });
@@ -42,6 +44,7 @@ var StockMenu = function(stockIDs){
     //console.log('Long Selected item #' + e.itemIndex + ' of section #' + e.sectionIndex);
     //console.log('The item is titled "' + e.item.title + '"');
     console.log('stockIDs: ' + stockIDs);
+    DataLoader.trackEvent('longSelect@Menu', {stockIds:stockIDs});
     theInstance.loadData(stockIDs);
   });
   this.menu.on('show', function() {
