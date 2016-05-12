@@ -114,7 +114,7 @@ StockMenu.prototype.loadData = function(stockIDs){
         var menuItem = {title: "无数据", subtitle: "请检查股票代码", stockData:null};
         if(stockData.stockCode){
           if(stockData.stockName){
-            line1 = stockData.currentPrice+'    '+stockData.deltaPrice;
+            line1 = stockData.currentPrice+'  '+stockData.deltaPrice;
             line2 = stockData.stockName+'  '+stockData.deltaPercent;
             menuItem = {title: line1, subtitle: line2, stockData:stockData};
             menuItemsForStock.push(menuItem);
@@ -155,7 +155,7 @@ StockMenu.prototype.loadData = function(stockIDs){
       _this.menuItemsForIndex = menuItemsForIndex;
     },
     function(error){
-
+      _this.hideLoading();
     }
   );
 };

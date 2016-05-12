@@ -209,7 +209,7 @@ StockDetail.prototype.loadData = function(stockID){
 			theInstance.updateInfo(theInstance.stockData, 0);
 		},
 		function(error){
-
+			theInstance.hideLoading();
 		}
 	);
 };
