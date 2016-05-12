@@ -10,7 +10,8 @@ var StockModel = function(line){
 	}
 
 	function getFormattedNumber (number){
-		return parseFloat(number).toFixed(2);
+		number = parseFloat(number);
+		return Math.abs(number)>1 ? number.toFixed(2) : number.toFixed(3);
 	}
 
 	var dataString = line.substring(firstQuoteIndex+1, lastQuoteIndex);
@@ -48,7 +49,8 @@ var StockModel = function(line){
 		var delta = model.currentPrice-model.closingPriceYesterday;
 		var deltaPercent = delta/model.closingPriceYesterday*100;
 		var symbol = deltaPercent>=0?'+':'';
-		model.deltaPrice = symbol+delta.toFixed(2);
+		delta = Math.abs(model.currentPrice)>1 ? delta.toFixed(2) : delta.toFixed(3);
+		model.deltaPrice = symbol+delta;
 		model.deltaPercent = symbol+deltaPercent.toFixed(2)+'%';
 		return model;
 	}else{
